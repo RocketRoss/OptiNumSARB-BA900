@@ -28,17 +28,20 @@ classdef BA900Sheet
             obj.headingTable = readtable(filepath, headerReadOpts);
 
             for i = 1:size(tableSplits,1)-1
-                tabRange = [tableSplits(i)+2 tableSplits(i+1)];
+                
+                tableHeader = table2cell(entireSheet(tableSplits(i)+1,:));
+                emptyIndices = cellfun(@isempty,tableHeader);
+                subtableWidth = find(emptyIndices);
+                subtableWidth = subtableWidth(1)-1
+                
+                tabRange = [tableSplits(i)+3 tableSplits(i+1)];
                 tabReadOpts = delimitedTextImportOptions('DataLines', tabRange);
                 tabReadOpts.PreserveVariableNames = true;
+                tabReadOpts.VariableNamesLine = tableSplits(i)+2;
+                
                 obj.subtables(i).name = A(tableSplits(i),1);
                 obj.subtables(i).table = readtable(filepath, tabReadOpts);
-                tableHeader = table2cell(obj.subtables(i).table(1,:));
-                emptyIndices = cellfun(@isempty,tableHeader);
-                tableHeader(emptyIndices) = {'Unused'};
-                
-                obj.subtables(i).table.Properties.VariableNames = tableHeader;
-                obj.subtables(i).table = obj.subtables(i).table(2:end,:);
+                obj.subtables(i).table = obj.subtables(i).table(:, 1:subtableWidth);
             end
         end
         
