@@ -4,7 +4,7 @@ classdef BA900Sheet
     properties
         filepath
         headingTable
-        sheetTable
+        subtables
     end
     
     methods
@@ -15,20 +15,27 @@ classdef BA900Sheet
             
             obj.filepath = filepath
             
-            opts = detectImportOptions(filepath)
-            opts.PreserveVariableNames = true
+            tabRange = [1 inf];
+            tabReadOpts = delimitedTextImportOptions('DataLines', tabRange);
+            entireSheet =  readtable(filepath, tabReadOpts);
+
+            A = table2array(entireSheet(:, 1));
+            tableSplits = find(contains(A(:,1), "Table "));
+            tableSplits = [tableSplits; inf];
             
-            obj.sheetTable = readtable(filepath, opts)
-            obj.headingTable = readtable(filepath, delimitedTextImportOptions('DataLines',[1 opts.DataLines(1)-3]))
+            headerRange = [1 tableSplits(1)-1;]
+            headerReadOpts = delimitedTextImportOptions('DataLines', headerRange);
+            obj.headingTable = readtable(filepath, headerReadOpts);
+
+            for i = 1:size(tableSplits,1)-1
+                tabRange = [tableSplits(i)+2 tableSplits(i+1)];
+                tabReadOpts = delimitedTextImportOptions('DataLines', tabRange);
+                tabReadOpts.PreserveVariableNames = true;
+                obj.subtables(i).name = A(tableSplits(i),1);
+                obj.subtables(i).table = readtable(filepath, tabReadOpts);
+            end
         end
         
-        function r = getTotal(obj)
-            r = obj.sheetTable(:,9)
-        end
-        
-        function r = getDescription(obj)
-           r = obj.sheetTable(:, 1) 
-        end
     end
 end
 
