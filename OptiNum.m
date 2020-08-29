@@ -1,10 +1,18 @@
-filepath = "D:\Development\Code\Scripts\MATLAB\OptiNumDatasets\BA900-2020-01-01csv\34118.csv"
+fileNameFilter = ["34118.csv", "25046.csv"];
 
-sheet = BA900Sheet(filepath)
+ba900files = dir('**/*.csv');
+ba900FileList = {ba900files.folder; ba900files.name};
 
-% totals = sheet.subtables(1).table(:, '"TOTAL(7)"')
-% depositTotal = totals('"1"', 1)
-depositTotal = cellfun(@str2double, sheet.subtables(1).table{'"1"', '"TOTAL(7)"'})
+filteredFileListIndices = find(contains(ba900FileList(2,:), fileNameFilter));
 
-subtable = getSubtableWithItemNumber(sheet, 110);
-loanTotal = cellfun(@str2double, subtable{'"110"', '"TOTAL ASSETS (Col 1 plus col 3)(5)"'})
+for i = 1:size(filteredFileListIndices,2)
+    filePath = string(join(ba900FileList(:,filteredFileListIndices(i)), '\'))
+    sheet = BA900Sheet(filePath);
+
+    % totals = sheet.subtables(1).table(:, '"TOTAL(7)"')
+    % depositTotal = totals('"1"', 1)
+    depositTotal = cellfun(@str2double, sheet.subtables(1).table{'"1"', '"TOTAL(7)"'})
+
+    subtable = getSubtableWithItemNumber(sheet, 110);
+    loanTotal = cellfun(@str2double, subtable{'"110"', '"TOTAL ASSETS (Col 1 plus col 3)(5)"'})
+end
