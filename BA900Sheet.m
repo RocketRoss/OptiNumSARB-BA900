@@ -23,7 +23,7 @@ classdef BA900Sheet
             tableSplits = find(contains(A(:,1), "Table "));
             tableSplits = [tableSplits; inf];
             
-            headerRange = [1 tableSplits(1)-1;]
+            headerRange = [1 tableSplits(1)-1];
             headerReadOpts = delimitedTextImportOptions('DataLines', headerRange);
             obj.headingTable = readtable(filepath, headerReadOpts);
 
@@ -33,6 +33,12 @@ classdef BA900Sheet
                 tabReadOpts.PreserveVariableNames = true;
                 obj.subtables(i).name = A(tableSplits(i),1);
                 obj.subtables(i).table = readtable(filepath, tabReadOpts);
+                tableHeader = table2cell(obj.subtables(i).table(1,:));
+                emptyIndices = cellfun(@isempty,tableHeader);
+                tableHeader(emptyIndices) = {'Unused'};
+                
+                obj.subtables(i).table.Properties.VariableNames = tableHeader;
+                obj.subtables(i).table = obj.subtables(i).table(2:end,:);
             end
         end
         
