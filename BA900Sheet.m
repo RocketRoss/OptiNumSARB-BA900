@@ -46,6 +46,14 @@ classdef BA900Sheet
             end
         end
         
+        function r = getSubtableWithItemNumber(obj, itemNumber)
+            for i = 1:size(obj.subtables, 2)
+                if find(strcmp(obj.subtables(i).table.Properties.RowNames, join(['"', string(itemNumber), '"'],'')))
+                    r = obj.subtables(i).table;
+                    return
+                end
+            end
+        end
     end
 end
 
