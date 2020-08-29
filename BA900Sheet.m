@@ -21,7 +21,7 @@ classdef BA900Sheet
 
             A = table2array(entireSheet(:, 1));
             tableSplits = find(contains(A(:,1), "Table "));
-            tableSplits = [tableSplits; inf];
+            tableSplits = [tableSplits; size(entireSheet,1)];
             
             headerRange = [1 tableSplits(1)-1];
             headerReadOpts = delimitedTextImportOptions('DataLines', headerRange);
@@ -32,7 +32,7 @@ classdef BA900Sheet
                 tableHeader = table2cell(entireSheet(tableSplits(i)+1,:));
                 emptyIndices = cellfun(@isempty,tableHeader);
                 subtableWidth = find(emptyIndices);
-                subtableWidth = subtableWidth(1)-1
+                subtableWidth = subtableWidth(1)-1;
                 
                 tabRange = [tableSplits(i)+3 tableSplits(i+1)];
                 tabReadOpts = delimitedTextImportOptions('DataLines', tabRange);
@@ -40,8 +40,9 @@ classdef BA900Sheet
                 tabReadOpts.VariableNamesLine = tableSplits(i)+2;
                 
                 obj.subtables(i).name = A(tableSplits(i),1);
-                obj.subtables(i).table = readtable(filepath, tabReadOpts);
-                obj.subtables(i).table = obj.subtables(i).table(:, 1:subtableWidth);
+                obj.subtables(i).table = entireSheet(tableSplits(i)+2:tableSplits(i+1)-1,1:subtableWidth);
+                obj.subtables(i).table.Properties.VariableNames = tableHeader(1:subtableWidth);
+                obj.subtables(i).table.Properties.RowNames = table2cell(entireSheet(tableSplits(i)+2:tableSplits(i+1)-1,2));
             end
         end
         
