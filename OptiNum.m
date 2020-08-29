@@ -4,6 +4,4 @@ sheet = BA900Sheet(filepath)
 
 getTotal(sheet)
 
-
-
 %totalMapped = containers.Map(getDescription(sheet), getTotal(sheet))

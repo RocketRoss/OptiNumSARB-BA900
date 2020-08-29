@@ -1,5 +1,5 @@
 classdef BA900Sheet
-    %SNBDATASHEET
+    %BA900Sheet
     
     properties
         filepath
@@ -8,8 +8,11 @@ classdef BA900Sheet
     end
     
     methods
-        function obj = SNBDatasheet(filepath)
-            %SNBDATASHEET Construct an instance of this class
+        function obj = BA900Sheet(filepath)
+            %Construct an instance of this class from a given 
+            %file path to a SARB BA900 datasheet.
+            %(https://www.resbank.co.za/Research/Statistics/Pages/Banks-BA900-Economic-Returns.aspx)
+            
             obj.filepath = filepath
             
             opts = detectImportOptions(filepath)
