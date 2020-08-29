@@ -13,7 +13,7 @@ classdef BA900Sheet
             %file path to a SARB BA900 datasheet.
             %(https://www.resbank.co.za/Research/Statistics/Pages/Banks-BA900-Economic-Returns.aspx)
             
-            obj.filepath = filepath
+            obj.filepath = filepath;
             
             tabRange = [1 inf];
             tabReadOpts = delimitedTextImportOptions('DataLines', tabRange);
@@ -49,8 +49,9 @@ classdef BA900Sheet
         end
         
         function r = getSubtableWithItemNumber(obj, itemNumber)
+            itemNumStr = join(['"' string(itemNumber) '"'], '');
             for i = 1:size(obj.subtables, 2)
-                if find(strcmp(obj.subtables(i).table.Properties.RowNames, join(['"', string(itemNumber), '"'],'')))
+                if find(strcmp(obj.subtables(i).table.Properties.RowNames, itemNumStr))
                     r = obj.subtables(i).table;
                     return
                 end
