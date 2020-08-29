@@ -3,7 +3,7 @@ classdef BA900Sheet
     
     properties
         filepath
-        headingTable
+        header
         subtables
     end
     
@@ -25,9 +25,9 @@ classdef BA900Sheet
             
             headerRange = [1 tableSplits(1)-1];
             headerReadOpts = delimitedTextImportOptions('DataLines', headerRange);
-            headingTable = readtable(filepath, headerReadOpts);
-            headingTable.Properties.RowNames = table2cell(headingTable(1:end, 1));
-            obj.headingTable = headingTable(1:end, 2);
+            header = readtable(filepath, headerReadOpts);
+            header.Properties.RowNames = table2cell(header(1:end, 1));
+            obj.header = header(1:end, 2);
 
             for i = 1:size(tableSplits,1)-1
                 
