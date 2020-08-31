@@ -1,7 +1,9 @@
-fileNameFilter = ["34118.csv", "25046.csv", "TOTAL.csv"];
+fileNameFilter = ["34118.csv", "25046.csv", "160571.csv", "165239.csv", "333107.csv", "TOTAL.csv"];
 
 ba900Files = dir('**/*.csv');
 ba900FileList = {ba900Files.folder; ba900Files.name};
+
+%fileNameFilter = {ba900Files.name}
 
 filteredFileListIndices = find(contains(ba900FileList(2,:), fileNameFilter));
 clearvars fileNameFilter
@@ -38,8 +40,7 @@ metrics.Loans = cell2table(loanCells);
 metrics.Loans.Properties.RowNames = institutions;
 metrics.Loans.Properties.VariableNames = dates;
 
-
-metrics.MarketShare = array2table(table2array(metrics.Deposits) ./ table2array(metrics.Deposits(1, :)));
+metrics.MarketShare = array2table(table2array(metrics.Deposits) ./ table2array(metrics.Deposits("*TOTAL*(TOTAL)", :)));
 metrics.MarketShare.Properties.RowNames = institutions;
 metrics.MarketShare.Properties.VariableNames = dates;
 
