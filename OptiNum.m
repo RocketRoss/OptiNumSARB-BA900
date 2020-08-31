@@ -26,17 +26,20 @@ for i = 1:size(sheets,2)
     rowIndex = find(strcmp(institutions, sheets(i).header{'Institution', 1}));
     colIndex = find(strcmp(dates, sheets(i).header{'Date', 1}));
 
-    depositCells(rowIndex, colIndex) = {cellfun(@str2double, sheets(i).subtables(1).table{'"1"', '"TOTAL(7)"'})};
+    depositCells(rowIndex, colIndex) = sheets(i).subtables(1).table{'"1"', '"TOTAL(7)"'};
     subtable = getSubtableWithItemNumber(sheets(i), 110);
-    loanCells(rowIndex, colIndex) = {cellfun(@str2double, subtable{'"110"', '"TOTAL ASSETS (Col 1 plus col 3)(5)"'})};
+    loanCells(rowIndex, colIndex) = subtable{'"110"', '"TOTAL ASSETS (Col 1 plus col 3)(5)"'};
 end
 clearvars i rowIndex colIndex subtable
 
-metrics.Deposits = cell2table(depositCells);
+depositCells = cellfun(@str2double, depositCells);
+loanCells = cellfun(@str2double, loanCells);
+
+metrics.Deposits = array2table(depositCells);
 metrics.Deposits.Properties.RowNames = institutions;
 metrics.Deposits.Properties.VariableNames = dates;
 
-metrics.Loans = cell2table(loanCells);
+metrics.Loans = array2table(loanCells);
 metrics.Loans.Properties.RowNames = institutions;
 metrics.Loans.Properties.VariableNames = dates;
 
