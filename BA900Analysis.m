@@ -53,11 +53,15 @@ classdef BA900Analysis
         function r = cells2table(obj, cells, cellsCastFunction)
             %cells2table Wraps the cells in a table with the variable and row names of the sheets
             if nargin < 3
-                cellsCastFunction = @cells2table
+                cellsCastFunction = @cells2table;
             end
             r = cellsCastFunction(cells);
             r.Properties.RowNames = obj.institutions;
             r.Properties.VariableNames = obj.dates;
+        end
+        
+        function r = getItemsDescribedBy(obj, descr)
+           r = obj.sheets(1).getItemsDescribedBy(descr);
         end
     end
 end
