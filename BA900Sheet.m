@@ -70,7 +70,7 @@ classdef BA900Sheet
         end
         
         function r = getItemsDescribedBy(obj, descr)
-            matchFun = @(x) contains(x, descr);
+            matchFun = @(x) contains(x, descr, 'IgnoreCase', true);
             r = obj.itemDescriptions(arrayfun(matchFun, table2array(obj.itemDescriptions)), 1); 
         end
     end
