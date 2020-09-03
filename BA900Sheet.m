@@ -5,6 +5,7 @@ classdef BA900Sheet
         filepath
         header
         subtables
+        itemDescriptions
     end
     
     methods
@@ -28,7 +29,7 @@ classdef BA900Sheet
             header = readtable(filepath, headerReadOpts);
             header.Properties.RowNames = table2cell(header(1:end, 1));
             obj.header = header(1:end, 2);
-
+            
             for i = 1:size(tableSplits,1)-1
                 
                 tableHeader = table2cell(entireSheet(tableSplits(i)+1,:));
@@ -36,12 +37,24 @@ classdef BA900Sheet
                 subtableWidth = find(emptyIndices);
                 subtableWidth = subtableWidth(1)-1;
                 
-                obj.subtables(i).name = A(tableSplits(i),1);
-                obj.subtables(i).table = entireSheet(tableSplits(i)+2:tableSplits(i+1)-1,1:subtableWidth);
+                itemNumbers = table2cell(entireSheet(tableSplits(i)+2:tableSplits(i+1)-1,2));
                 
-                obj.subtables(i).table.Properties.VariableNames = tableHeader(1:subtableWidth);
-                obj.subtables(i).table.Properties.RowNames = table2cell(entireSheet(tableSplits(i)+2:tableSplits(i+1)-1,2));
+                if i == 1
+                   obj.itemDescriptions = entireSheet(tableSplits(i)+2:tableSplits(i+1)-1,1:1);
+                   allItemNumbers = itemNumbers;
+                else
+                   obj.itemDescriptions = [obj.itemDescriptions; entireSheet(tableSplits(i)+2:tableSplits(i+1)-1,1:1)];
+                   allItemNumbers = [allItemNumbers; itemNumbers];
+                end
+                
+                obj.subtables(i).name = A(tableSplits(i),1);
+                obj.subtables(i).table = entireSheet(tableSplits(i)+2:tableSplits(i+1)-1,3:subtableWidth);
+                obj.subtables(i).table = array2table(cellfun(@str2double, table2cell(obj.subtables(i).table)));
+                obj.subtables(i).table.Properties.VariableNames = tableHeader(3:subtableWidth);
+                obj.subtables(i).table.Properties.RowNames = itemNumbers;
             end
+            obj.itemDescriptions.Properties.VariableNames = {'Description'};
+            obj.itemDescriptions.Properties.RowNames = allItemNumbers;
         end
         
         function r = getSubtableWithItemNumber(obj, itemNumber)
