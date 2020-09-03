@@ -53,6 +53,7 @@ classdef BA900Sheet
                 obj.subtables(i).table.Properties.VariableNames = tableHeader(3:subtableWidth);
                 obj.subtables(i).table.Properties.RowNames = itemNumbers;
             end
+            obj.itemDescriptions = array2table(cellfun(@string, table2cell(obj.itemDescriptions)));
             obj.itemDescriptions.Properties.VariableNames = {'Description'};
             obj.itemDescriptions.Properties.RowNames = allItemNumbers;
         end
@@ -65,6 +66,11 @@ classdef BA900Sheet
                     return
                 end
             end
+        end
+        
+        function r = getItemsDescribedBy(obj, descr)
+            matchFun = @(x) contains(x, descr);
+            r = obj.itemDescriptions(arrayfun(matchFun, table2array(obj.itemDescriptions)), 1); 
         end
     end
 end
