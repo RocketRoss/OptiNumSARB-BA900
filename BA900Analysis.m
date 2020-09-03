@@ -38,15 +38,14 @@ classdef BA900Analysis
         
         function r = getCells(obj, rowId, varId)
             %getCells Returns a cell array of a particular data from all sheets
-            rowString = join(['"', string(rowId), '"'], '');
-            varString = join(['"', varId, '"'], '');
+            rowIdString = string(rowId);
             for i = 1:size(obj.sheets,2)
                 rowIndex = find(strcmp(obj.institutions, obj.sheets(i).header{'Institution', 1}));
                 colIndex = find(strcmp(obj.dates, obj.sheets(i).header{'Date', 1}));
             
                 subtable = getSubtableWithItemNumber(obj.sheets(i), rowId);
 
-                r(rowIndex, colIndex) = subtable{rowString, varString};
+                r(rowIndex, colIndex) = subtable{rowIdString, varId};
             end
         end
 

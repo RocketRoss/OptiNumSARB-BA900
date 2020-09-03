@@ -38,6 +38,7 @@ classdef BA900Sheet
                 subtableWidth = subtableWidth(1)-1;
                 
                 itemNumbers = table2cell(entireSheet(tableSplits(i)+2:tableSplits(i+1)-1,2));
+                itemNumbers = strrep(itemNumbers, '"', '');
                 
                 if i == 1
                    obj.itemDescriptions = entireSheet(tableSplits(i)+2:tableSplits(i+1)-1,1:1);
@@ -50,7 +51,7 @@ classdef BA900Sheet
                 obj.subtables(i).name = A(tableSplits(i),1);
                 obj.subtables(i).table = entireSheet(tableSplits(i)+2:tableSplits(i+1)-1,3:subtableWidth);
                 obj.subtables(i).table = array2table(cellfun(@str2double, table2cell(obj.subtables(i).table)));
-                obj.subtables(i).table.Properties.VariableNames = tableHeader(3:subtableWidth);
+                obj.subtables(i).table.Properties.VariableNames = strrep(tableHeader(3:subtableWidth), '"', '');
                 obj.subtables(i).table.Properties.RowNames = itemNumbers;
             end
             obj.itemDescriptions = array2table(cellfun(@string, table2cell(obj.itemDescriptions)));
@@ -59,7 +60,7 @@ classdef BA900Sheet
         end
         
         function r = getSubtableWithItemNumber(obj, itemNumber)
-            itemNumStr = join(['"' string(itemNumber) '"'], '');
+            itemNumStr = string(itemNumber);
             for i = 1:size(obj.subtables, 2)
                 if find(strcmp(obj.subtables(i).table.Properties.RowNames, itemNumStr))
                     r = obj.subtables(i).table;
