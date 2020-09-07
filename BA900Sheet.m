@@ -73,6 +73,11 @@ classdef BA900Sheet
             matchFun = @(x) contains(x, descr, 'IgnoreCase', true);
             r = obj.itemDescriptions(arrayfun(matchFun, table2array(obj.itemDescriptions)), 1); 
         end
+        
+        function r = getDescriptionsForSubtable(obj, subtable)
+           boolIndices = cellfun(@(x) any(strcmp(x, subtable.Properties.RowNames)), obj.itemDescriptions.Properties.RowNames);
+           r = obj.itemDescriptions(boolIndices, :);
+        end
     end
 end
 
