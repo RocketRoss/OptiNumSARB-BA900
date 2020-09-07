@@ -62,6 +62,18 @@ classdef BA900Analysis
         function r = getItemsDescribedBy(obj, descr)
            r = obj.sheets(1).getItemsDescribedBy(descr);
         end
+        
+        function r = getCellsAsTable(obj, rowId, varId)
+           r = obj.cells2table(obj.getCells(rowId, varId), @array2table); 
+        end
+        
+        function r = applyFunctionToTables(obj, tableFunc, table1, table2)
+           if nargin < 4 % treat table1 as a cellArray of tables
+            r = obj.cells2table(tableFunc(cellfun(@table2array, table1, "UniformOutput", false)), @array2table); 
+           else   
+            r = obj.cells2table(tableFunc(table2array(table1), table2array(table2)), @array2table); 
+           end
+        end
     end
 end
 
