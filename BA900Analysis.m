@@ -17,11 +17,11 @@ classdef BA900Analysis
             ba900FileList = {ba900Files.folder; ba900Files.name};
 
             if length(fileNameFilter) == 0
-                fileNameFilter = {ba900Files.name}
+                fileNameFilter = {ba900Files.name};
             end
 
             filteredFileListIndices = find(contains(ba900FileList(2,:), fileNameFilter));
-            obj.fileNameFilter = fileNameFilter
+            obj.fileNameFilter = fileNameFilter;
 
             for i = 1:size(filteredFileListIndices,2)
                 filePath = string(join(ba900FileList(:,filteredFileListIndices(i)), '\'));
