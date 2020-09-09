@@ -317,13 +317,14 @@ metrics.OperationalEfficiency
 % assets), as banks are uniquely able to add to the existing stock of money by lending
 % money created by claims on their own debt (Schumpeter, 1934).
 
-stackedplot(analysis.joinRowNamesAndTable(metrics.OperationalEfficiency, 'Date'), 'XVariable', 'Date')
 
-analysis.plotTableColumns(metrics.OperationalEfficiency);
-ylabel('Operational Efficiency');
+analysis.plotTableColumns(metrics.MarketShare);
+analysis.plotTableColumns(analysis.transposeTable(metrics.MarketShare));
+ylabel('MarketShare');
 
 analysis.plotTableColumns(metrics.LoansToDeposits);
 ylabel('Ratio of Loans to Deposits');
 
-analysis.plotTableColumns(metrics.MarketShare);
-ylabel('MarketShare');
+%stackedplot(analysis.joinRowNamesAndTable(metrics.OperationalEfficiency, 'Date'), 'XVariable', 'Date')
+analysis.plotTableColumns(metrics.OperationalEfficiency);
+ylabel('Operational Efficiency');
