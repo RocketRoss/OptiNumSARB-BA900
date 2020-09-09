@@ -91,6 +91,19 @@ classdef BA900Analysis
            r.Properties.RowNames = tbl.Properties.VariableNames;
            r.Properties.VariableNames = tbl.Properties.RowNames;
         end
+        
+        function r = plotTableColumns(obj, tbl)
+           rows = [1:size(tbl,1)];
+           for colIndex = 1:size(tbl, 2)
+              r(colIndex) = plot(rows, table2array(tbl(:, colIndex)),'-o','MarkerIndices',rows);
+              hold on;
+           end
+           hold off;
+           xticks(rows);
+           xticklabels(tbl.Properties.RowNames);
+           xlabel('Date');
+           legend(tbl.Properties.VariableNames);
+        end
     end
 end
 

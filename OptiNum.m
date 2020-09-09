@@ -318,3 +318,12 @@ metrics.OperationalEfficiency
 % money created by claims on their own debt (Schumpeter, 1934).
 
 stackedplot(analysis.joinRowNamesAndTable(metrics.OperationalEfficiency, 'Date'), 'XVariable', 'Date')
+
+analysis.plotTableColumns(metrics.OperationalEfficiency);
+ylabel('Operational Efficiency');
+
+analysis.plotTableColumns(metrics.LoansToDeposits);
+ylabel('Ratio of Loans to Deposits');
+
+analysis.plotTableColumns(metrics.MarketShare);
+ylabel('MarketShare');
