@@ -75,6 +75,13 @@ sheet.getSubtableWithItemNumber(97)
 %     101     2.674e+08                      1.5858e+07                                               138.18                      
 %     102    5.7957e+09                             NaN                                                  NaN 
 
+% Or to get the index of such a subtable within a sheet.
+
+sheet.getSubtableWithItemNumber(97)
+% ans =
+%
+%   5
+
 % All of the subtables of a sheet are stored in the sheet's subtables property,
 % which is an array of the sheet's internal tables, paired to
 % their names in a structure.
@@ -99,7 +106,7 @@ sheet.subtables(5)
 
 % A convenience function exists to retrieve the descriptions for a subtable.
 
-sheet.getDescriptionsForSubtable(sheet.getSubtableWithItemNumber(97))
+sheet.getDescriptionsForSubtable(sheet.subtables(5).table)
 % ans =
 %
 %   7×1 table
@@ -115,37 +122,31 @@ sheet.getDescriptionsForSubtable(sheet.getSubtableWithItemNumber(97))
 %     101    "Other reserves"                                         
 %     102    "TOTAL EQUITY AND LIABILITIES (total of items 95 and 96)"
 
-[ans sheet.getSubtableWithItemNumber(97)]
+[ans sheet.subtables(5).table]
 
 % 
 
-% Further MATLAB code was created to programatically load and access multiple
+% In order to conduct an analysis across multiple banks and multiple months,
+% further MATLAB code was created to programatically load and access multiple
 % BA900 sheets. This is done with a BA900Analysis object, that optionally
 % filters the directory's sheets against a list of filenames.
 
 fileNameFilter = ["34118.csv", "160571.csv", "165239.csv", "333107.csv", "TOTAL.csv"];
-analysis = BA900Analysis(fileNameFilter);
-% obj = 
+analysis = BA900Analysis(fileNameFilter)
+% analysis = 
 %
 %   BA900Analysis with properties:
 %
 %     fileNameFilter: ["34118.csv"    "160571.csv"    "165239.csv"    "333107.csv"    "TOTAL.csv"]
-%             sheets: []
-%              dates: []
-%       institutions: []
+%             sheets: [1×15 BA900Sheet]
+%              dates: ["2019-06"    "2019-07"    "2019-08"]
+%       institutions: [1×5 string]
 
 % The BA900Analysis object automatically keeps track of each sheet's date
-% and institution, building up a list of values for each.
+% and institution, building up a list of values for each. Adding or removing
+% a month to or from the analysis merely requires handling the folders.
 
-analysis.dates
 analysis.institutions
-% ans = 
-%
-%   1×3 string array
-%
-%     "2019-06"    "2019-07"    "2019-08"
-%
-%
 % ans = 
 %
 %   1×5 string array
@@ -153,7 +154,7 @@ analysis.institutions
 %     " *TOTAL*(TOTAL)"    " ABSA BANK LTD(341…"    " AFRICAN BANK LIMI…"    " CAPITEC BANK(3331…"    " TYME BANK LIMITED…"
 
 % These are used to neatly catalogue the results of a request for a particular
-% cell from each sheet.
+% cell from each sheet, for instance the total for item number 96.
 
 metrics.Equity = analysis.getCellsAsTable(96, 'TOTAL(1)')
 % ans =
@@ -186,7 +187,7 @@ metrics.Equity
 %     CAPITEC BANK(333107)                 21744242.00     22285040.00     22601239.00
 %     TYME BANK LIMITED(165239)              733953.00       629529.00       517503.00
 
-% These tabulated results can be filtered for institution or date.
+% These tabulated results can be filtered for an institution or a date.
 
 metrics.Deposits = analysis.getCellsAsTable(1, 'TOTAL(7)');
 metrics.Deposits("*TOTAL*(TOTAL)", :)
@@ -204,7 +205,8 @@ table2array(metrics.Loans) ./ table2array(metrics.Deposits)
 %     1.0924    1.0715    1.0426
 %     2.6640    2.1343    0.9916
 
-% This can be retabulated with the appropriated row and column labels.
+% This can be retabulated with the appropriated row and column labels
+% using a conversion function from the BA900Analysis object.
 
 metrics.LoansToDeposits = analysis.cells2table(ans, @array2table);
 metrics.LoansToDeposits
@@ -222,7 +224,7 @@ metrics.LoansToDeposits
 %     TYME BANK LIMITED(165239)            2.664     2.1343     0.99163
 
 % A convenience function handles the intermediate conversions, and enables
-% the application of a function of two arrays to the analysis tables.
+% the application of a function, taking two arrays, to the analysis tables.
 
 metrics.MarketShare = analysis.applyFunctionToTables(@(t1, t2) t1 ./ t2, metrics.Deposits, metrics.Deposits("*TOTAL*(TOTAL)", :));
 metrics.MarketShare
