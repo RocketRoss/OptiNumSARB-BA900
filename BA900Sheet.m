@@ -59,14 +59,18 @@ classdef BA900Sheet
             obj.itemDescriptions.Properties.RowNames = allItemNumbers;
         end
         
-        function r = getSubtableWithItemNumber(obj, itemNumber)
+        function r = getSubtableIndexWithItemNumber(obj, itemNumber)
             itemNumStr = string(itemNumber);
             for i = 1:size(obj.subtables, 2)
                 if find(strcmp(obj.subtables(i).table.Properties.RowNames, itemNumStr))
-                    r = obj.subtables(i).table;
+                    r = i;
                     return
                 end
             end
+        end
+        
+        function r = getSubtableWithItemNumber(obj, itemNumber)
+            r = obj.subtables(obj.getSubtableIndexWithItemNumber(itemNumber)).table;
         end
         
         function r = getItemsDescribedBy(obj, descr)
