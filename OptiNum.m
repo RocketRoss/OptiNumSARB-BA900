@@ -140,35 +140,27 @@ analysis = BA900Analysis(fileNameFilter)
 %     fileNameFilter: ["34118.csv"    "160571.csv"    "165239.csv"    "333107.csv"    "TOTAL.csv"]
 %             sheets: [1×15 BA900Sheet]
 %              dates: ["2019-06"    "2019-07"    "2019-08"]
-%       institutions: [1×5 string]
+%       institutions: ["*TOTAL*(TOTAL)"    "ABSA BANK LTD(34118)"    "AFRICAN BANK LIMITED (N)(160571)"    "CAPITEC BANK(333107)"    "TYME BANK LIMITED(165239)"]
 
 % The BA900Analysis object automatically keeps track of each sheet's date
 % and institution, building up a list of values for each. Adding or removing
 % a month to or from the analysis merely requires handling the folders.
-
-analysis.institutions
-% ans = 
 %
-%   1×5 string array
-%
-%     " *TOTAL*(TOTAL)"    " ABSA BANK LTD(341…"    " AFRICAN BANK LIMI…"    " CAPITEC BANK(3331…"    " TYME BANK LIMITED…"
-
 % These are used to neatly catalogue the results of a request for a particular
 % cell from each sheet, for instance the total for item number 96.
 
-metrics.Equity = analysis.getCellsAsTable(96, 'TOTAL(1)')
+metrics.Equity = analysis.getCellsAsTable(96, 'TOTAL(1)');
+metrics.Equity
 % ans =
 %
-%   5×3 table
+%   3×5 table
 %
-%                                          2019-06       2019-07       2019-08  
-%                                         __________    __________    __________
+%                 *TOTAL*(TOTAL)     ABSA BANK LTD(34118)     AFRICAN BANK LIMITED (N)(160571)     CAPITEC BANK(333107)     TYME BANK LIMITED(165239)
+%                _______________    _____________________    _________________________________    _____________________    __________________________
 %
-%     *TOTAL*(TOTAL)                      4.8388e+08    4.8656e+08    4.8898e+08
-%     ABSA BANK LTD(34118)                8.7394e+07    8.7228e+07    8.5308e+07
-%     AFRICAN BANK LIMITED (N)(160571)    8.3697e+06    8.4421e+06    8.5002e+06
-%     CAPITEC BANK(333107)                2.1744e+07    2.2285e+07    2.2601e+07
-%     TYME BANK LIMITED(165239)           7.3395e+05    6.2953e+05     5.175e+05
+%     2019-06      4.8388e+08            8.7394e+07                     8.3697e+06                     2.1744e+07                  7.3395e+05        
+%     2019-07      4.8656e+08            8.7228e+07                     8.4421e+06                     2.2285e+07                  6.2953e+05        
+%     2019-08      4.8898e+08            8.5308e+07                     8.5002e+06                     2.2601e+07                   5.175e+05        
 
 % This can easily be reformatted.
 
@@ -176,34 +168,41 @@ format bank
 metrics.Equity
 % ans =
 %
-%   5×3 table
+%   3×5 table
 %
-%                                           2019-06         2019-07         2019-08   
-%                                         ____________    ____________    ____________
+%                 *TOTAL*(TOTAL)     ABSA BANK LTD(34118)     AFRICAN BANK LIMITED (N)(160571)     CAPITEC BANK(333107)     TYME BANK LIMITED(165239)
+%                _______________    _____________________    _________________________________    _____________________    __________________________
 %
-%     *TOTAL*(TOTAL)                      483883453.86    486559710.77    488984498.04
-%     ABSA BANK LTD(34118)                 87394402.00     87227604.00     85307593.00
-%     AFRICAN BANK LIMITED (N)(160571)      8369696.00      8442130.00      8500235.00
-%     CAPITEC BANK(333107)                 21744242.00     22285040.00     22601239.00
-%     TYME BANK LIMITED(165239)              733953.00       629529.00       517503.00
+%     2019-06     483883453.86           87394402.00                    8369696.00                     21744242.00                 733953.00         
+%     2019-07     486559710.77           87227604.00                    8442130.00                     22285040.00                 629529.00         
+%     2019-08     488984498.04           85307593.00                    8500235.00                     22601239.00                 517503.00         
 
 % These tabulated results can be filtered for an institution or a date.
 
 metrics.Deposits = analysis.getCellsAsTable(1, 'TOTAL(7)');
-metrics.Deposits("*TOTAL*(TOTAL)", :)
+metrics.Deposits(:, '*TOTAL*(TOTAL)')
+% ans =
+%
+%   3×1 table
+%
+%                *TOTAL*(TOTAL)
+%                ______________
+%
+%     2019-06    4082232094.43 
+%     2019-07    4090208845.93 
+%     2019-08    4132358109.87 
 
 % Quickly casting from the table to an array, the values of the cells can be used
 % in calculation.
 
+format
 metrics.Loans = analysis.getCellsAsTable(110, 'TOTAL ASSETS (Col 1 plus col 3)(5)');
 table2array(metrics.Loans) ./ table2array(metrics.Deposits)
 % ans =
 %
-%     1.0193    1.0178    1.0082
-%     1.0662    1.0758    1.0474
-%     6.1933    6.0496    5.5532
-%     1.0924    1.0715    1.0426
-%     2.6640    2.1343    0.9916
+%     1.0193    1.0662    6.1933    1.0924    2.6640
+%     1.0178    1.0758    6.0496    1.0715    2.1343
+%     1.0082    1.0474    5.5532    1.0426    0.9916
 
 % This can be retabulated with the appropriated row and column labels
 % using a conversion function from the BA900Analysis object.
@@ -226,24 +225,24 @@ metrics.LoansToDeposits
 % A convenience function handles the intermediate conversions, and enables
 % the application of a function, taking two arrays, to the analysis tables.
 
-metrics.MarketShare = analysis.applyFunctionToTables(@(t1, t2) t1 ./ t2, metrics.Deposits, metrics.Deposits("*TOTAL*(TOTAL)", :));
+metrics.MarketShare = analysis.applyFunctionToTables(@(t1, t2) t1 ./ t2, metrics.Deposits, metrics.Deposits(:, '*TOTAL*(TOTAL)'));
 metrics.MarketShare
 
 % ans =
 %
-%   5×3 table
+%   3×5 table
 %
-%                                          2019-06       2019-07       2019-08  
-%                                         __________    __________    __________
+%                *TOTAL*(TOTAL)    ABSA BANK LTD(34118)    AFRICAN BANK LIMITED (N)(160571)    CAPITEC BANK(333107)    TYME BANK LIMITED(165239)
+%                ______________    ____________________    ________________________________    ____________________    _________________________
 %
-%     *TOTAL*(TOTAL)                               1             1             1
-%     ABSA BANK LTD(34118)                   0.19865       0.19678       0.19865
-%     AFRICAN BANK LIMITED (N)(160571)    0.00093041    0.00097679     0.0010792
-%     CAPITEC BANK(333107)                  0.018944      0.019206      0.019785
-%     TYME BANK LIMITED(165239)           5.3401e-05    6.9023e-05    8.3886e-05
+%     2019-06          1                 0.19865                      0.00093041                     0.018944                 5.3401e-05        
+%     2019-07          1                 0.19678                      0.00097679                     0.019206                 6.9023e-05        
+%     2019-08          1                 0.19865                       0.0010792                     0.019785                 8.3886e-05    
 
+% A convenience function transposes this table, so that it is more easily sorted.
 % MATLAB's regular functionality enables further manipulation of this data.
 
+metrics.MarketShare = analysis.transposeTable(metrics.MarketShare);
 sortrows(metrics.MarketShare, size(metrics.MarketShare,2), 'descend')
 % ans =
 %
@@ -291,39 +290,31 @@ metrics.Assets = analysis.getCellsAsTable(277, 'TOTAL ASSETS (Col 1 plus col 3)(
 metrics.Assets
 % ans =
 %
-%   5×3 table
+%   3×5 table
 %
-%                                          2019-06       2019-07       2019-08  
-%                                         __________    __________    __________
+%                *TOTAL*(TOTAL)    ABSA BANK LTD(34118)    AFRICAN BANK LIMITED (N)(160571)    CAPITEC BANK(333107)    TYME BANK LIMITED(165239)
+%                ______________    ____________________    ________________________________    ____________________    _________________________
 %
-%     *TOTAL*(TOTAL)                      5.7957e+09    5.8007e+09    5.8954e+09
-%     ABSA BANK LTD(34118)                1.1478e+09    1.1469e+09    1.1431e+09
-%     AFRICAN BANK LIMITED (N)(160571)    2.6965e+07    2.7477e+07    2.8249e+07
-%     CAPITEC BANK(333107)                1.0929e+08    1.1062e+08    1.1323e+08
-%     TYME BANK LIMITED(165239)           1.0875e+06      9.91e+05    9.2207e+05
+%     2019-06      5.7957e+09           1.1478e+09                    2.6965e+07                    1.0929e+08                1.0875e+06        
+%     2019-07      5.8007e+09           1.1469e+09                    2.7477e+07                    1.1062e+08                  9.91e+05        
+%     2019-08      5.8954e+09           1.1431e+09                    2.8249e+07                    1.1323e+08                9.2207e+05        
 
 metrics.OperationalEfficiency = analysis.applyFunctionToTables(@(cellArray) (cellArray{1} + cellArray{2}) ./ cellArray{3}, {metrics.Loans metrics.Deposits metrics.Assets})
 metrics.OperationalEfficiency
 % ans =
 %
-%   5×3 table
+%   3×5 table
 %
-%                                         2019-06    2019-07    2019-08
-%                                         _______    _______    _______
+%                *TOTAL*(TOTAL)    ABSA BANK LTD(34118)    AFRICAN BANK LIMITED (N)(160571)    CAPITEC BANK(333107)    TYME BANK LIMITED(165239)
+%                ______________    ____________________    ________________________________    ____________________    _________________________
 %
-%     *TOTAL*(TOTAL)                       1.4223     1.4228     1.4077
-%     ABSA BANK LTD(34118)                 1.4598     1.4568     1.4703
-%     AFRICAN BANK LIMITED (N)(160571)     1.0132      1.025     1.0345
-%     CAPITEC BANK(333107)                 1.4806      1.471     1.4749
-%     TYME BANK LIMITED(165239)           0.73444    0.89291    0.74875
+%     2019-06        1.4223               1.4598                        1.0132                        1.4806                    0.73444         
+%     2019-07        1.4228               1.4568                         1.025                         1.471                    0.89291         
+%     2019-08        1.4077               1.4703                        1.0345                        1.4749                    0.74875         
 
-% To compile the above ratio for the banking industry, banking institutions’ total loans
-% and advances and total investments and bills discounted are computed relative to
-% banking institutions’ total assets. As can be seen in Chart 5, the ratio suggests that
-% between 71.94% and 82.20% of banks’ total assets in the 1992 to 2008 period was
-% either lent out or invested. This suggests that banks have not used their assets to their
+% Less than 100% suggests that banks have not used their assets to their
 % full potential (loans plus marketable securities at least one hundred percent of total
 % assets), as banks are uniquely able to add to the existing stock of money by lending
-% money created by claims on their own debt (Schumpeter, 1934), while below potential
-% investment in corporates’ fixed income securities and equities limits companies’
-% ability to expand and invest, limiting economic activity.
+% money created by claims on their own debt (Schumpeter, 1934).
+
+stackedplot(analysis.joinRowNamesAndTable(metrics.OperationalEfficiency, 'Date'), 'XVariable', 'Date')

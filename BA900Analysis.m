@@ -34,14 +34,15 @@ classdef BA900Analysis
             obj.sheets = sheets;
             obj.dates = unique(dates);
             obj.institutions = unique(institutions);
+            obj.institutions = arrayfun(@strtrim, obj.institutions);
         end
         
         function r = getCells(obj, rowId, varId)
             %getCells Returns a cell array of a particular data from all sheets
             rowIdString = string(rowId);
             for i = 1:size(obj.sheets,2)
-                rowIndex = find(strcmp(obj.institutions, obj.sheets(i).header{'Institution', 1}));
-                colIndex = find(strcmp(obj.dates, obj.sheets(i).header{'Date', 1}));
+                rowIndex = find(strcmp(obj.dates, obj.sheets(i).header{'Date', 1}));
+                colIndex = find(strcmp(obj.institutions, strtrim(obj.sheets(i).header{'Institution', 1})));
             
                 subtable = getSubtableWithItemNumber(obj.sheets(i), rowId);
 
@@ -55,16 +56,16 @@ classdef BA900Analysis
                 cellsCastFunction = @cells2table;
             end
             r = cellsCastFunction(cells);
-            r.Properties.RowNames = obj.institutions;
-            r.Properties.VariableNames = obj.dates;
-        end
-        
-        function r = getItemsDescribedBy(obj, descr)
-           r = obj.sheets(1).getItemsDescribedBy(descr);
+            r.Properties.RowNames = obj.dates;
+            r.Properties.VariableNames = obj.institutions;
         end
         
         function r = getCellsAsTable(obj, rowId, varId)
            r = obj.cells2table(obj.getCells(rowId, varId), @array2table); 
+        end
+        
+        function r = getItemsDescribedBy(obj, descr)
+           r = obj.sheets(1).getItemsDescribedBy(descr);
         end
         
         function r = applyFunctionToTables(obj, tableFunc, table1, table2)
@@ -73,6 +74,22 @@ classdef BA900Analysis
            else   
             r = obj.cells2table(tableFunc(table2array(table1), table2array(table2)), @array2table); 
            end
+        end
+        
+        function r = joinRowNamesAndTable(obj, tbl, varName, rowNameConversionFunc)
+            if nargin < 3
+                varName = "Row Names";
+            end
+            if nargin < 4
+                rowNameConversionFunc = @(x) datetime(x, 'InputFormat', 'yyyy-MM');
+            end
+           r = [array2table(cellfun(rowNameConversionFunc, tbl.Properties.RowNames), 'VariableNames', {varName}) tbl];
+        end
+        
+        function r = transposeTable(obj, tbl)
+           r = array2table(table2array(tbl).');
+           r.Properties.RowNames = tbl.Properties.VariableNames;
+           r.Properties.VariableNames = tbl.Properties.RowNames;
         end
     end
 end
